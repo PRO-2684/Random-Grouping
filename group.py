@@ -18,6 +18,9 @@ class Student:
         self.ability = int(info[3])
         self.dorm = info[4]
 
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} id={self.id} name={self.name} sex={'Male' if self.sex else 'Female'} ability={self.ability} dorm={self.dorm}>"
+
 
 def get_gender(s: str) -> bool:
     """Translate genders into booleans."""
@@ -41,7 +44,7 @@ def from_file(path: str) -> list[Student]:
 
 def average(students: list[Student], attr: str) -> float:
     """Average of given attribute."""
-    sum_ = sum(map(lambda stu: stu.__getattribute__(attr), students))
+    sum_ = sum(map(lambda stu: getattr(stu, attr), students))
     return sum_ / len(students)
 
 
@@ -96,12 +99,15 @@ def group(students: list[Student], size: int) -> list[Student]:
     """Main grouping function."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
+    statistics = size, sex_ratio, average_ability
     shuffle(students)
+    # TODO: Implement minimum conflict algorithm.
     print(
         sex_ratio,
         average_ability,
-        conflict(students, size, sex_ratio, average_ability),
+        conflict(students, *statistics),
     )
+    return students
 
 
 if __name__ == "__main__":
@@ -111,3 +117,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     students = from_file(args.file)
     result = group(students, args.size)
+    print(result)
