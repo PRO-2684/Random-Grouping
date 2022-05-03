@@ -1,18 +1,26 @@
 import argparse
+from random import shuffle
+
+
+WEIGHTS = 10, 1, 0.01
+"""The weights of dormitory, sex ratio and ability used in calculating conflicts."""
 
 
 class Student:
+    """Main class representing a student."""
+
     def __init__(self, info: str):
-        """id name gender ability room"""
+        """`info` should be in the format of `id name gender ability room`."""
         info = info.split()
         self.id = info[0]
         self.name = info[1]
-        self.gender = get_gender(info[2])
+        self.sex = get_gender(info[2])
         self.ability = int(info[3])
-        self.room = info[4]
+        self.dorm = info[4]
 
 
 def get_gender(s: str) -> bool:
+    """Translate genders into booleans."""
     if s == "男":
         return True
     elif s == "女":
@@ -21,29 +29,85 @@ def get_gender(s: str) -> bool:
         raise ValueError("Invalid gender: " + s)
 
 
-def from_file(path: str) -> set[Student]:
-    result = set()
+def from_file(path: str) -> list[Student]:
+    """Generate a student list from a file."""
+    result = []
     with open(path, encoding="utf-8") as f:
         for line in f.readlines():
             student = Student(line)
-            result.add(student)
+            result.append(student)
     return result
 
 
 def average(students: list[Student], attr: str) -> float:
-    sum = 0
-    for student in students:
-        sum += student.__getattribute__(attr)
-    return sum / len(students)
+    """Average of given attribute."""
+    sum_ = sum(map(lambda stu: stu.__getattribute__(attr), students))
+    return sum_ / len(students)
+
+
+def conflict(
+    students: list[Student], group_size: int, sex_ratio: float, average_ability: float
+) -> float:
+    """Conflict value consists of 3 aspects: dormitory, sex ratio and ability."""
+    left = len(students) % group_size
+    div = len(students) - left * group_size
+    result = 0
+    group_sex_ratio = 0
+    group_average_ability = 0
+    dorm = set()
+    for i, student in enumerate(students[:div]):
+        if student.dorm in dorm:
+            result += WEIGHTS[0]
+        else:
+            dorm.add(student.dorm)
+        group_sex_ratio += student.sex
+        group_average_ability += student.ability
+        if not (i + 1) % group_size:  # End of a group.
+            group_sex_ratio /= group_size
+            group_average_ability /= group_size
+            result += (
+                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
+                + abs(group_average_ability - average_ability) * WEIGHTS[2]
+            )
+            dorm.clear()
+            group_sex_ratio = 0
+            group_average_ability = 0
+    for i, student in enumerate(students[div:]):
+        if student.dorm in dorm:
+            result += WEIGHTS[0]
+        else:
+            dorm.add(student.dorm)
+        group_sex_ratio += student.sex
+        group_average_ability += student.ability
+        if not (i + 1 - div) % (group_size + 1):  # End of a group.
+            group_sex_ratio /= group_size
+            group_average_ability /= group_size
+            result += (
+                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
+                + abs(group_average_ability - average_ability) * WEIGHTS[2]
+            )
+            dorm.clear()
+            group_sex_ratio = 0
+            group_average_ability = 0
+    return result
+
+
+def group(students: list[Student], size: int) -> list[Student]:
+    """Main grouping function."""
+    sex_ratio = average(students, "sex")
+    average_ability = average(students, "ability")
+    shuffle(students)
+    print(
+        sex_ratio,
+        average_ability,
+        conflict(students, size, sex_ratio, average_ability),
+    )
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simple grouping proogram.")
+    parser = argparse.ArgumentParser(description="Simple grouping program.")
     parser.add_argument("file", help="Input file path.")
-    parser.add_argument("count", help="Number of people inside a group.", type=int)
+    parser.add_argument("size", help="The expected size of a group.", type=int)
     args = parser.parse_args()
     students = from_file(args.file)
-    count = args.count
-    male_percentage = average(students, "gender")
-    average_ability = average(students, "ability")
-    print(male_percentage, average_ability)
+    result = group(students, args.size)
