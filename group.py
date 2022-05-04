@@ -1,5 +1,6 @@
 import argparse
 from random import shuffle
+from os import get_terminal_size
 
 
 WEIGHTS = 1000, 1, 0.01
@@ -19,7 +20,10 @@ class Student:
         self.dorm = info[4]
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} id={self.id} name={self.name} sex={'Male' if self.sex else 'Female'} ability={self.ability} dorm={self.dorm}>"
+        return f"<{self.__class__.__name__} id={self.id} name={self.name} sex={'男' if self.sex else '女'} ability={self.ability} dorm={self.dorm}>"
+
+    def __str__(self) -> str:
+        return f"#{self.id}\t{self.name}\t{'男' if self.sex else '女'}\t{self.ability}\t{self.dorm}"
 
 
 def get_gender(s: str) -> bool:
@@ -127,12 +131,31 @@ def group(students: list[Student], size: int) -> int:
     return conf
 
 
+def show(students: list[Student], group_size: int) -> None:
+    left = len(students) % group_size
+    div = len(students) - left * group_size
+    cnt = 0
+    group_id = 0
+    term_size = get_terminal_size()
+    print('ID\tName\tSex\tAbility\tDormitory')
+    print('-' * term_size.columns, end='')
+    for i, student in enumerate(students):
+        if not cnt:
+            group_id += 1
+            print(f'\nGroup {group_id}:')
+        cnt = (cnt + 1) % (group_size + (i > div))
+        print(student)
+    print('-' * term_size.columns)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
     parser.add_argument("file", help="Input file path.")
     parser.add_argument("size", help="The expected size of a group.", type=int)
     args = parser.parse_args()
+    print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
+    print(f'Dividing into groups of {args.size}...\n')
     conf = group(students, args.size)
-    print(students)
-    print(conf)
+    show(students, args.size)
+    print('Conflict value:', conf)
