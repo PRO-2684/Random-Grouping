@@ -2,7 +2,7 @@ import argparse
 from random import shuffle
 
 
-WEIGHTS = 10, 1, 0.01
+WEIGHTS = 1000, 1, 0.01
 """The weights of dormitory, sex ratio and ability used in calculating conflicts."""
 
 
@@ -95,6 +95,20 @@ def conflict(
     return result
 
 
+def min_conf_point(students: list[Student], target: int, *statistics) -> tuple[int]:
+    """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
+    result = target
+    min_conf = conflict(students, *statistics)
+    for pos in range(target + 1, len(students)):
+        students_ = students[:]
+        students_[target], students_[pos] = students_[pos], students_[target]
+        conf = conflict(students_, *statistics)
+        if conf < min_conf:
+            min_conf = conf
+            result = pos
+    return result, min_conf
+
+
 def group(students: list[Student], size: int) -> list[Student]:
     """Main grouping function."""
     sex_ratio = average(students, "sex")
@@ -106,6 +120,7 @@ def group(students: list[Student], size: int) -> list[Student]:
         sex_ratio,
         average_ability,
         conflict(students, *statistics),
+        min_conf_point(students, 0, *statistics)
     )
     return students
 
