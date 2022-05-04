@@ -95,10 +95,10 @@ def conflict(
     return result
 
 
-def min_conf_point(students: list[Student], target: int, *statistics) -> tuple[int]:
+def min_conf_point(students: list[Student], target: int, base_conf: float, *statistics) -> tuple[int]:
     """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
     result = target
-    min_conf = conflict(students, *statistics)
+    min_conf = base_conf
     for pos in range(target + 1, len(students)):
         students_ = students[:]
         students_[target], students_[pos] = students_[pos], students_[target]
@@ -109,20 +109,22 @@ def min_conf_point(students: list[Student], target: int, *statistics) -> tuple[i
     return result, min_conf
 
 
-def group(students: list[Student], size: int) -> list[Student]:
-    """Main grouping function."""
+def group(students: list[Student], size: int) -> int:
+    """Main grouping function (in place)."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
     statistics = size, sex_ratio, average_ability
     shuffle(students)
-    # TODO: Implement minimum conflict algorithm.
-    print(
-        sex_ratio,
-        average_ability,
-        conflict(students, *statistics),
-        min_conf_point(students, 0, *statistics)
-    )
-    return students
+    conf = conflict(students, *statistics)
+    flag = True
+    while flag:
+        flag = False
+        for target in range(len(students) - 1):
+            pos, conf = min_conf_point(students, target, conf, *statistics)
+            if pos != target:
+                flag = True
+                students[target], students[pos] = students[pos], students[target]
+    return conf
 
 
 if __name__ == "__main__":
@@ -131,5 +133,6 @@ if __name__ == "__main__":
     parser.add_argument("size", help="The expected size of a group.", type=int)
     args = parser.parse_args()
     students = from_file(args.file)
-    result = group(students, args.size)
-    print(result)
+    conf = group(students, args.size)
+    print(students)
+    print(conf)
