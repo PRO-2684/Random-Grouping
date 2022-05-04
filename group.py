@@ -23,7 +23,7 @@ class Student:
         return f"<{self.__class__.__name__} id={self.id} name={self.name} sex={'男' if self.sex else '女'} ability={self.ability} dorm={self.dorm}>"
 
     def __str__(self) -> str:
-        return f"#{self.id}\t{self.name}\t{'男' if self.sex else '女'}\t{self.ability}\t{self.dorm}"
+        return f"#{self.id}\t{self.name if len(self.name) > 3 else self.name + chr(9)}\t{'男' if self.sex else '女'}\t{self.ability}\t{self.dorm}"
 
 
 def get_gender(s: str) -> bool:
@@ -140,7 +140,7 @@ def show(students: list[Student], group_size: int) -> None:
     cnt = 0
     group_id = 0
     term_size = get_terminal_size()
-    print("ID\tName\tSex\tAbility\tDormitory")
+    print(f"ID\tName\t\tSex\tAbility\tDormitory")
     print("-" * term_size.columns, end="")
     for i, student in enumerate(students):
         if not cnt:

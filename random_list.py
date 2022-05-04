@@ -1,7 +1,5 @@
 import random
 
-import numpy
-
 
 def random_name():
     # 删减部分小众姓氏
@@ -46,23 +44,22 @@ def random_name():
         girl_name = girl[random.choice(range(len(girl)))]
         if random.choice(range(2)) > 0:
             name_1 = name[random.choice(range(len(name)))]
-        return firstName_name + name_1 + girl_name + "\t女"
+        return firstName_name + name_1 + girl_name + " 女"
     else:
         boy_name = boy[random.choice(range(len(boy)))]
         if random.choice(range(2)) > 0:
             name_1 = name[random.choice(range(len(name)))]
-        return firstName_name + name_1 + boy_name + "\t男"
+        return firstName_name + name_1 + boy_name + " 男"
 
 
 lis = []
-i = int(input("请输入人数:"))
+i = int(input("请输入人数: "))
 for k in range(i):
     person = random_name() + ' ' + str(random.randrange(0, 100)) + ' ' + '1' + '%03d' % ((k // 4) + 1)
     lis.append(person)
-numpy.random.shuffle(lis)
-fil = open('namelist.txt', 'w+')
-t = 1
-for k in lis:
-    fil.write('%03d' % t + ' ' + k + '\n')
-    t += 1
-fil.close()
+random.shuffle(lis)
+with open('namelist.txt', 'w', encoding='utf-8') as fil:
+    t = 1
+    for k in lis:
+        fil.write('%03d' % t + ' ' + k + '\n')
+        t += 1
