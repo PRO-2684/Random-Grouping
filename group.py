@@ -55,7 +55,7 @@ def average(students: list[Student], attr: str) -> float:
 def conflict(
     students: list[Student], group_size: int, sex_ratio: float, average_ability: float
 ) -> float:
-    """Conflict value consists of 3 aspects: dormitory, sex ratio and ability."""
+    """Calculate the conflict value, which consists of 3 aspects: dormitory, sex ratio and ability."""
     left = len(students) % group_size
     div = len(students) - left * group_size
     result = 0
@@ -99,7 +99,9 @@ def conflict(
     return result
 
 
-def min_conf_point(students: list[Student], target: int, base_conf: float, *statistics) -> tuple[int]:
+def min_conf_point(
+    students: list[Student], target: int, base_conf: float, *statistics
+) -> tuple[int]:
     """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
     result = target
     min_conf = base_conf
@@ -132,20 +134,21 @@ def group(students: list[Student], size: int) -> int:
 
 
 def show(students: list[Student], group_size: int) -> None:
+    """Prints the result."""
     left = len(students) % group_size
     div = len(students) - left * group_size
     cnt = 0
     group_id = 0
     term_size = get_terminal_size()
-    print('ID\tName\tSex\tAbility\tDormitory')
-    print('-' * term_size.columns, end='')
+    print("ID\tName\tSex\tAbility\tDormitory")
+    print("-" * term_size.columns, end="")
     for i, student in enumerate(students):
         if not cnt:
             group_id += 1
-            print(f'\nGroup {group_id}:')
+            print(f"\nGroup {group_id}:")
         cnt = (cnt + 1) % (group_size + (i > div))
         print(student)
-    print('-' * term_size.columns)
+    print("-" * term_size.columns)
 
 
 if __name__ == "__main__":
@@ -155,7 +158,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
-    print(f'Dividing into groups of {args.size}...\n')
+    print(f"Dividing into groups of {args.size}...\n")
     conf = group(students, args.size)
     show(students, args.size)
-    print('Conflict value:', conf)
+    print("Conflict value:", conf)
