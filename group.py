@@ -151,10 +151,25 @@ def show(students: list[Student], group_size: int) -> None:
     print("-" * term_size.columns)
 
 
+def save_as_text(students: list[Student], group_size: int, file_path: str) -> None:
+    left = len(students) % group_size
+    div = len(students) - left * group_size
+    cnt = 0
+    group_id = 0
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write('Group Id Name\n')
+        for i, student in enumerate(students):
+            if not cnt:
+                group_id += 1
+            f.write(f"{group_id} {student.id} {student.name}\n")
+            cnt = (cnt + 1) % (group_size + (i > div))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
     parser.add_argument("file", help="Input file path.")
     parser.add_argument("size", help="The expected size of a group.", type=int)
+    parser.add_argument('-t', '--txt', help='Output as txt file at provided path.', required=False, default=None)
     args = parser.parse_args()
     print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
@@ -162,3 +177,6 @@ if __name__ == "__main__":
     conf = group(students, args.size)
     show(students, args.size)
     print("Conflict value:", conf)
+    if args.txt:
+        print(f'Saving as txt to "{args.txt}"...')
+        save_as_text(students, args.size, args.txt)
