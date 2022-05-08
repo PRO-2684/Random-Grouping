@@ -73,8 +73,8 @@ def conflict(
             group_sex_ratio /= group_size
             group_average_ability /= group_size
             result += (
-                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
-                + abs(group_average_ability - average_ability) * WEIGHTS[2]
+                ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1]
+                + ((group_average_ability - average_ability) ** 2) * WEIGHTS[2]
             )
             dorm.clear()
             group_sex_ratio = 0
@@ -90,8 +90,8 @@ def conflict(
             group_sex_ratio /= group_size
             group_average_ability /= group_size
             result += (
-                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
-                + abs(group_average_ability - average_ability) * WEIGHTS[2]
+                ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1]
+                + ((group_average_ability - average_ability) ** 2) * WEIGHTS[2]
             )
             dorm.clear()
             group_sex_ratio = 0
@@ -100,12 +100,12 @@ def conflict(
 
 
 def min_conf_point(
-    students: list[Student], target: int, base_conf: float, *statistics
-) -> tuple[int]:
+    students: list[Student], target: int, base_conf: float, fast: bool, *statistics
+) -> tuple:
     """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
     result = target
     min_conf = base_conf
-    for pos in range(target + 1, len(students)):
+    for pos in range(target + 1, len(students), statistics[0] if fast else 1):
         students_ = students[:]
         students_[target], students_[pos] = students_[pos], students_[target]
         conf = conflict(students_, *statistics)
@@ -115,7 +115,7 @@ def min_conf_point(
     return result, min_conf
 
 
-def group(students: list[Student], size: int) -> int:
+def group(students: list[Student], size: int, fast: bool) -> int:
     """Main grouping function (in place)."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
@@ -126,7 +126,7 @@ def group(students: list[Student], size: int) -> int:
     while flag:
         flag = False
         for target in range(len(students) - 1):
-            pos, conf = min_conf_point(students, target, conf, *statistics)
+            pos, conf = min_conf_point(students, target, conf, fast, *statistics)
             if pos != target:
                 flag = True
                 students[target], students[pos] = students[pos], students[target]
@@ -170,11 +170,12 @@ if __name__ == "__main__":
     parser.add_argument("file", help="Input file path.")
     parser.add_argument("size", help="The expected size of a group.", type=int)
     parser.add_argument('-t', '--txt', help='Output as txt file at provided path.', required=False, default=None)
+    parser.add_argument('-f', '--fast', help='Allow higher conflict value for better speed.', action='store_true')
     args = parser.parse_args()
     print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
-    print(f"Dividing into groups of {args.size}...\n")
-    conf = group(students, args.size)
+    print(f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n")
+    conf = group(students, args.size, args.fast)
     show(students, args.size)
     print("Conflict value:", conf)
     if args.txt:
