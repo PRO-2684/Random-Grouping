@@ -72,10 +72,9 @@ def conflict(
         if not (i + 1) % group_size:  # End of a group.
             group_sex_ratio /= group_size
             group_average_ability /= group_size
-            result += (
-                ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1]
-                + ((group_average_ability - average_ability) ** 2) * WEIGHTS[2]
-            )
+            result += ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1] + (
+                (group_average_ability - average_ability) ** 2
+            ) * WEIGHTS[2]
             dorm.clear()
             group_sex_ratio = 0
             group_average_ability = 0
@@ -89,10 +88,9 @@ def conflict(
         if not (i + 1 - div) % (group_size + 1):  # End of a group.
             group_sex_ratio /= group_size
             group_average_ability /= group_size
-            result += (
-                ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1]
-                + ((group_average_ability - average_ability) ** 2) * WEIGHTS[2]
-            )
+            result += ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1] + (
+                (group_average_ability - average_ability) ** 2
+            ) * WEIGHTS[2]
             dorm.clear()
             group_sex_ratio = 0
             group_average_ability = 0
@@ -156,8 +154,8 @@ def save_as_text(students: list[Student], group_size: int, file_path: str) -> No
     div = len(students) - left * group_size
     cnt = 0
     group_id = 0
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write('Group Id Name\n')
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write("Group Id Name\n")
         for i, student in enumerate(students):
             if not cnt:
                 group_id += 1
@@ -169,12 +167,25 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
     parser.add_argument("file", help="Input file path.")
     parser.add_argument("size", help="The expected size of a group.", type=int)
-    parser.add_argument('-t', '--txt', help='Output as txt file at provided path.', required=False, default=None)
-    parser.add_argument('-f', '--fast', help='Allow higher conflict value for better speed.', action='store_true')
+    parser.add_argument(
+        "-t",
+        "--txt",
+        help="Output as txt file at provided path.",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "-f",
+        "--fast",
+        help="Allow higher conflict value for better speed.",
+        action="store_true",
+    )
     args = parser.parse_args()
     print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
-    print(f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n")
+    print(
+        f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n"
+    )
     conf = group(students, args.size, args.fast)
     show(students, args.size)
     print("Conflict value:", conf)
