@@ -1,5 +1,4 @@
 import random
-import numpy
 
 
 def random_name():
@@ -17,7 +16,7 @@ def random_name():
     firstName2 = "万俟司马上官欧阳夏侯诸葛闻人东方赫连皇甫尉迟公羊澹台公冶宗政" \
                  "濮阳淳于单于太叔申屠公孙仲孙轩辕令狐钟离宇文长孙慕容鲜于闾丘" \
                  "司徒司空亓官司寇仉督子颛孙端木巫马公西漆雕乐正壤驷公良拓跋夹" \
-                 "谷宰父谷梁段干百里东郭南门呼延羊舌微生梁丘左丘东门西门南宫南宫 "
+                 "谷宰谷梁段干百里东郭南门呼延羊舌微生梁丘左丘东门西门南宫南宫"
     # 女孩名字
     girl = '秀娟英华慧巧美娜静淑惠珠翠雅芝玉萍红娥玲芬芳燕彩春菊兰凤洁梅琳素云莲' \
            '真环雪荣爱妹霞香月莺媛艳瑞凡佳嘉琼勤珍贞莉桂娣叶璧璐娅琦晶妍茜秋珊莎' \
@@ -32,36 +31,35 @@ def random_name():
     name = '中笑贝凯歌易仁器义礼智信友上都卡被好无九加电金马钰玉忠孝'
 
     # 10%的机遇生成双数姓氏
-    if random.choice(range(100)) > 10:
-        firstName_name = firstName[random.choice(range(len(firstName)))]
+    if random.randint(1, 100) > 10:
+        firstName_name = random.choice(firstName)
     else:
-        i1 = random.choice(range(len(firstName2)))
-        firstName_name = firstName2[i1:i1 + 2]
+        i1 = random.randrange(0, len(firstName2) // 2)
+        firstName_name = firstName2[i1 * 2:i1 * 2 + 2]
 
-    sex = random.choice(range(2))
+    sex = random.randrange(2)
     name_1 = ""
     # 生成并返回一个名字
-    if sex > 0:
-        girl_name = girl[random.choice(range(len(girl)))]
-        if random.choice(range(2)) > 0:
-            name_1 = name[random.choice(range(len(name)))]
-        return firstName_name + name_1 + girl_name + "\t女"
+    if sex:
+        girl_name = random.choice(girl)
+        if random.randint(0, 1):
+            name_1 = random.choice(name)
+        return firstName_name + name_1 + girl_name + " 女"
     else:
-        boy_name = boy[random.choice(range(len(boy)))]
-        if random.choice(range(2)) > 0:
-            name_1 = name[random.choice(range(len(name)))]
-        return firstName_name + name_1 + boy_name + "\t男"
+        boy_name = random.choice(boy)
+        if random.randint(0, 1):
+            name_1 = random.choice(name)
+        return firstName_name + name_1 + boy_name + " 男"
 
 
 lis = []
-i = int(input("请输入人数:"))
+i = int(input("请输入人数: "))
 for k in range(i):
     person = random_name() + ' ' + str(random.randrange(0, 100)) + ' ' + '1' + '%03d' % ((k // 4) + 1)
     lis.append(person)
-numpy.random.shuffle(lis)
-fil = open('namelist.txt', 'w+')
-t = 1
-for k in lis:
-    fil.write('%03d' % t + ' ' + k + '\n')
-    t += 1
-fil.close()
+random.shuffle(lis)
+with open('namelist.txt', 'w', encoding='utf-8') as fil:
+    t = 1
+    for k in lis:
+        fil.write('%03d' % t + ' ' + k + '\n')
+        t += 1
