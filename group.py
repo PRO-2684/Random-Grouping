@@ -3,7 +3,7 @@ from random import shuffle
 from os import get_terminal_size
 
 
-WEIGHTS = 1000, 1, 0.01
+WEIGHTS = 1000, 100, 0.001
 """The weights of dormitory, sex ratio and ability used in calculating conflicts."""
 
 
@@ -72,10 +72,9 @@ def conflict(
         if not (i + 1) % group_size:  # End of a group.
             group_sex_ratio /= group_size
             group_average_ability /= group_size
-            result += (
-                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
-                + abs(group_average_ability - average_ability) * WEIGHTS[2]
-            )
+            result += ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1] + (
+                (group_average_ability - average_ability) ** 2
+            ) * WEIGHTS[2]
             dorm.clear()
             group_sex_ratio = 0
             group_average_ability = 0
@@ -89,10 +88,9 @@ def conflict(
         if not (i + 1 - div) % (group_size + 1):  # End of a group.
             group_sex_ratio /= group_size
             group_average_ability /= group_size
-            result += (
-                abs(group_sex_ratio - sex_ratio) * WEIGHTS[1]
-                + abs(group_average_ability - average_ability) * WEIGHTS[2]
-            )
+            result += ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1] + (
+                (group_average_ability - average_ability) ** 2
+            ) * WEIGHTS[2]
             dorm.clear()
             group_sex_ratio = 0
             group_average_ability = 0
@@ -100,12 +98,12 @@ def conflict(
 
 
 def min_conf_point(
-    students: list[Student], target: int, base_conf: float, *statistics
-) -> tuple[int]:
+    students: list[Student], target: int, base_conf: float, fast: bool, *statistics
+) -> tuple:
     """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
     result = target
     min_conf = base_conf
-    for pos in range(target + 1, len(students)):
+    for pos in range(target + 1, len(students), statistics[0] if fast else 1):
         students_ = students[:]
         students_[target], students_[pos] = students_[pos], students_[target]
         conf = conflict(students_, *statistics)
@@ -115,7 +113,7 @@ def min_conf_point(
     return result, min_conf
 
 
-def group(students: list[Student], size: int) -> int:
+def group(students: list[Student], size: int, fast: bool) -> int:
     """Main grouping function (in place)."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
@@ -126,7 +124,7 @@ def group(students: list[Student], size: int) -> int:
     while flag:
         flag = False
         for target in range(len(students) - 1):
-            pos, conf = min_conf_point(students, target, conf, *statistics)
+            pos, conf = min_conf_point(students, target, conf, fast, *statistics)
             if pos != target:
                 flag = True
                 students[target], students[pos] = students[pos], students[target]
@@ -151,14 +149,46 @@ def show(students: list[Student], group_size: int) -> None:
     print("-" * term_size.columns)
 
 
+def save_as_text(students: list[Student], group_size: int, file_path: str) -> None:
+    left = len(students) % group_size
+    div = len(students) - left * group_size
+    cnt = 0
+    group_id = 0
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write("Group Id Name\n")
+        for i, student in enumerate(students):
+            if not cnt:
+                group_id += 1
+            f.write(f"{group_id} {student.id} {student.name}\n")
+            cnt = (cnt + 1) % (group_size + (i > div))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
     parser.add_argument("file", help="Input file path.")
     parser.add_argument("size", help="The expected size of a group.", type=int)
+    parser.add_argument(
+        "-t",
+        "--txt",
+        help="Output as txt file at provided path.",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "-f",
+        "--fast",
+        help="Allow higher conflict value for better speed.",
+        action="store_true",
+    )
     args = parser.parse_args()
     print(f'Loading data from "{args.file}"...')
     students = from_file(args.file)
-    print(f"Dividing into groups of {args.size}...\n")
-    conf = group(students, args.size)
+    print(
+        f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n"
+    )
+    conf = group(students, args.size, args.fast)
     show(students, args.size)
     print("Conflict value:", conf)
+    if args.txt:
+        print(f'Saving as txt to "{args.txt}"...')
+        save_as_text(students, args.size, args.txt)
