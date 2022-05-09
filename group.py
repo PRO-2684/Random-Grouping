@@ -3,7 +3,7 @@ from random import shuffle
 from os import get_terminal_size
 
 
-WEIGHTS = 1000, 1, 0.01
+WEIGHTS = 1000, 100, 0.001
 """The weights of dormitory, sex ratio and ability used in calculating conflicts."""
 
 
