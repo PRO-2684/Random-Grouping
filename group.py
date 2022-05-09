@@ -165,8 +165,8 @@ def save_as_text(students: list[Student], group_size: int, file_path: str) -> No
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
-    parser.add_argument("file", help="Input file path.")
-    parser.add_argument("size", help="The expected size of a group.", type=int)
+    parser.add_argument('-i', "--input", help="Input file path.", default=None)
+    parser.add_argument('-s', "--size", help="The expected size of a group.", type=int, default=0)
     parser.add_argument(
         "-t",
         "--txt",
@@ -181,8 +181,12 @@ if __name__ == "__main__":
         action="store_true",
     )
     args = parser.parse_args()
-    print(f'Loading data from "{args.file}"...')
-    students = from_file(args.file)
+    if not args.input:
+        args.input = input("Please provide the path of input file: ")
+    if not args.size:
+        args.size = int(input('Please specify the expected size of a group: '))
+    print(f'Loading data from "{args.input}"...')
+    students = from_file(args.input)
     print(
         f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n"
     )
