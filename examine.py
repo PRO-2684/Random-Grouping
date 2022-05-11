@@ -1,8 +1,10 @@
 import re
 import statistics
 
-
 # 获取特定格式文件的信息
+import numpy
+
+
 def read(filename):
     try:
         fil = open(filename, "r", encoding="utf-8")
@@ -29,6 +31,14 @@ def trans(orgin_list1, teamlist1):
             teplist[i1].append(re.split(r'[ ]', orgin_list1[int(person[2:5]) - 1]))
         i1 += 1
     return teplist
+
+
+# 计算各组人数的极差
+def exam_num(team_list):
+    numlis = []
+    for team in team_list:
+        numlis.append(len(team))
+    print("各组人数的极差为:" + str(max(numlis) - min(numlis)))
 
 
 # 计算每组人员平均能力并返回一列表
@@ -84,6 +94,7 @@ orgin_file = input("请输入原始文件名:")
 orgin_list = read(orgin_file)
 teamlist = trans(orgin_list, teamlist)
 aver = average_ability(teamlist)
+exam_num(teamlist)
 print("各组平均能力" + str(aver))
 print("各组平均能力值的极差为" + str(max(aver) - min(aver)))
 sexradio = gender(teamlist)
