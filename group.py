@@ -176,6 +176,7 @@ if __name__ == "__main__":
         required=False,
         default=None,
     )
+    parser.add_argument("-q", "--quiet", help="Disable outputting result on terminal.", action="store_true")
     args = parser.parse_args()
     if not args.input:
         args.input = input("Please provide the path of input file: ")
@@ -185,7 +186,8 @@ if __name__ == "__main__":
     students = from_file(args.input)
     print(f"Dividing into groups of {args.size}...")
     conf = group(students, args.size)
-    show(students, args.size)
+    if not args.quiet:
+        show(students, args.size)
     print("Conflict value:", conf)
     if args.txt:
         print(f'Saving as txt to "{args.txt}"...')
