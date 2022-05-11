@@ -98,12 +98,12 @@ def conflict(
 
 
 def min_conf_point(
-    students: list[Student], target: int, base_conf: float, fast: bool, *statistics
+    students: list[Student], target: int, base_conf: float, *statistics
 ) -> tuple:
     """Find the minimum conflict pos for students[target]. Returns the pos and conflict."""
     result = target
     min_conf = base_conf
-    for pos in range(target + 1, len(students), statistics[0] if fast else 1):
+    for pos in range(0, len(students), statistics[0]):
         students_ = students[:]
         students_[target], students_[pos] = students_[pos], students_[target]
         conf = conflict(students_, *statistics)
@@ -113,7 +113,7 @@ def min_conf_point(
     return result, min_conf
 
 
-def group(students: list[Student], size: int, fast: bool) -> int:
+def group(students: list[Student], size: int) -> int:
     """Main grouping function (in place)."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
@@ -124,7 +124,7 @@ def group(students: list[Student], size: int, fast: bool) -> int:
     while flag:
         flag = False
         for target in range(len(students) - 1):
-            pos, conf = min_conf_point(students, target, conf, fast, *statistics)
+            pos, conf = min_conf_point(students, target, conf, *statistics)
             if pos != target:
                 flag = True
                 students[target], students[pos] = students[pos], students[target]
@@ -165,8 +165,10 @@ def save_as_text(students: list[Student], group_size: int, file_path: str) -> No
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simple grouping program.")
-    parser.add_argument('-i', "--input", help="Input file path.", default=None)
-    parser.add_argument('-s', "--size", help="The expected size of a group.", type=int, default=0)
+    parser.add_argument("-i", "--input", help="Input file path.", default=None)
+    parser.add_argument(
+        "-s", "--size", help="The expected size of a group.", type=int, default=0
+    )
     parser.add_argument(
         "-t",
         "--txt",
@@ -174,23 +176,15 @@ if __name__ == "__main__":
         required=False,
         default=None,
     )
-    parser.add_argument(
-        "-f",
-        "--fast",
-        help="Allow higher conflict value for better speed.",
-        action="store_true",
-    )
     args = parser.parse_args()
     if not args.input:
         args.input = input("Please provide the path of input file: ")
     if not args.size:
-        args.size = int(input('Please specify the expected size of a group: '))
+        args.size = int(input("Please specify the expected size of a group: "))
     print(f'Loading data from "{args.input}"...')
     students = from_file(args.input)
-    print(
-        f"Dividing into groups of {args.size} in {'fast' if args.fast else 'classical'} mode...\n"
-    )
-    conf = group(students, args.size, args.fast)
+    print(f"Dividing into groups of {args.size}...")
+    conf = group(students, args.size)
     show(students, args.size)
     print("Conflict value:", conf)
     if args.txt:
