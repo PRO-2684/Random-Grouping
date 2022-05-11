@@ -1,6 +1,7 @@
-import argparse
+from argparse import ArgumentParser
 from random import shuffle
 from os import get_terminal_size
+from time import time
 
 
 WEIGHTS = 1000, 100, 0.001
@@ -164,7 +165,7 @@ def save_as_text(students: list[Student], group_size: int, file_path: str) -> No
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Simple grouping program.")
+    parser = ArgumentParser(description="Simple grouping program.")
     parser.add_argument("-i", "--input", help="Input file path.", default=None)
     parser.add_argument(
         "-s", "--size", help="The expected size of a group.", type=int, default=0
@@ -182,6 +183,7 @@ if __name__ == "__main__":
         args.input = input("Please provide the path of input file: ")
     if not args.size:
         args.size = int(input("Please specify the expected size of a group: "))
+    start = time()
     print(f'Loading data from "{args.input}"...')
     students = from_file(args.input)
     print(f"Dividing into groups of {args.size}...")
@@ -189,6 +191,8 @@ if __name__ == "__main__":
     if not args.quiet:
         show(students, args.size)
     print("Conflict value:", conf)
+    end = time()
+    print(f"Time used: {end - start:.5f}s.")
     if args.txt:
         print(f'Saving as txt to "{args.txt}"...')
         save_as_text(students, args.size, args.txt)
