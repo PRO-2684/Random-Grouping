@@ -151,6 +151,7 @@ def show(students: list[Student], group_size: int) -> None:
 
 
 def save_as_text(students: list[Student], group_size: int, file_path: str) -> None:
+    """Save the result in a txt file."""
     left = len(students) % group_size
     div = len(students) - left * group_size
     cnt = 0
@@ -177,7 +178,12 @@ if __name__ == "__main__":
         required=False,
         default=None,
     )
-    parser.add_argument("-q", "--quiet", help="Disable outputting result on terminal.", action="store_true")
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        help="Disable outputting result on terminal.",
+        action="store_true",
+    )
     args = parser.parse_args()
     if not args.input:
         args.input = input("Please provide the path of input file: ")
