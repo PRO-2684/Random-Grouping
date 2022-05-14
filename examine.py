@@ -82,7 +82,7 @@ def exam_dorm(team_list):
 
 
 result_file = input("请输入结果文件名:")
-name_list = read(result_file)[1:]
+name_list = read(result_file)[1:]  # 去除无用行
 teamlist = [[]]
 k = 1
 for i in name_list:
@@ -91,10 +91,10 @@ for i in name_list:
     else:
         teamlist.append([])
         k += 1
-        teamlist[k - 1].append(i)
+        teamlist[k - 1].append(i)  # 将同组人员放在一起
 orgin_file = input("请输入原始文件名:")
-orgin_list = read(orgin_file)
-teamlist = trans(orgin_list, teamlist)
+orgin_list = read(orgin_file)  # 读入原始名单
+teamlist = trans(orgin_list, teamlist)  # 在原始名单内查找相关信息
 aver = average_ability(teamlist)
 exam_num(teamlist)
 print("各组平均能力" + str(aver))
