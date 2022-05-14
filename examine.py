@@ -52,7 +52,7 @@ def average_ability(team_list):
     return aver_ability
 
 
-# 计算各组成员的男女比例
+# 计算各组成员的男女比例,队伍中无女生则比例为-1
 def gender(team_list):
     sex_ratio = []
     for team in team_list:
@@ -63,7 +63,10 @@ def gender(team_list):
                 male += 1
             else:
                 female += 1
-        sex_ratio.append('%.2f' % (male / female))
+        try:
+            sex_ratio.append('%.2f' % (male / female))
+        except:
+            sex_ratio.append(-1)
     return sex_ratio
 
 
