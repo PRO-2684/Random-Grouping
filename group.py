@@ -114,7 +114,7 @@ def min_conf_point(
     return result, min_conf
 
 
-def group(students: list[Student], size: int) -> int:
+def group(students: list[Student], size: int) -> float:
     """Main grouping function (in place)."""
     sex_ratio = average(students, "sex")
     average_ability = average(students, "ability")
