@@ -98,7 +98,7 @@ teamlist = trans(orgin_list, teamlist)  # 在原始名单内查找相关信息
 aver = average_ability(teamlist)
 exam_num(teamlist)
 print("各组平均能力" + str(aver))
-print("各组平均能力值的极差为" + str(max(aver) - min(aver)))
+print("各组平均能力值的极差为" + str(round(max(aver) - min(aver), 2)))
 sexradio = gender(teamlist)
 print("各组男生所占比例" + str(sexradio))
 if exam_dorm(teamlist):
