@@ -87,8 +87,8 @@ def conflict(
         group_sex_ratio += student.sex
         group_average_ability += student.ability
         if not (i + 1 - div) % (group_size + 1):  # End of a group.
-            group_sex_ratio /= group_size
-            group_average_ability /= group_size
+            group_sex_ratio /= (group_size + 1)
+            group_average_ability /= (group_size + 1)
             result += ((group_sex_ratio - sex_ratio) ** 2) * WEIGHTS[1] + (
                 (group_average_ability - average_ability) ** 2
             ) * WEIGHTS[2]
